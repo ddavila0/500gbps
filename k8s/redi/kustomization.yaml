@@ -1,0 +1,12 @@
+resources:
+  - deployment.yaml
+
+configMapGenerator:
+  - name: xrootd-config-redi
+    files:
+      - xrootd-redi.cfg
+      - cmsd-redi.cfg
+      - auth-file-noauth
+
+commonLabels:
+  app: xrootd-redi
