@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: xrootd-redi-gc
+  name: xrootd-redi-gc
+  namespace: osg-gil
+spec:
+  selector:
+    matchLabels:
+      k8s-app: xrootd-redi-gc
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s-app: xrootd-redi-gc
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/stashcache
+        operator: Exists
+      containers:
+      - env:
+        - name: OSG_FQDN
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: XRDHTTPPORT
+          value: "9051"
+        - name: SITENAME
+          value: xrootd-redi
+        image: aaarora/gc-500gbps:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9051
+        name: xrootd-redi-gc
+        resources:
+          limits:
+            cpu: 2
+            memory: 4Gi
+          requests:
+            cpu: 1
+            memory: 2Gi
+        volumeMounts:
+        - mountPath: /mnt/ramdisk/
+          name: cache-vol
+        - mountPath: /etc/xrootd/xrootd-third-party-copy.cfg
+          name: xrootd-redi-conf
+          subPath: xrootd-third-party-copy.cfg
+        - mountPath: /etc/xrootd/auth-file-noauth
+          name: xrootd-redi-conf
+          subPath: auth-file-noauth
+        - mountPath: /etc/supervisord.d/10-xrootd.conf
+          name: xrootd-redi-supervisor
+          subPath: supervisord.conf
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        kubernetes.io/hostname: stashcache.t2.ucsd.edu
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: cache-vol
+        emptyDir: {}
+      - name: xrootd-redi-conf
+        configMap: 
+          name: xrootd-redi-conf
+          items:
+          - key: xrootd-third-party-copy.cfg
+            path: xrootd-third-party-copy.cfg
+          - key: auth-file-noauth
+            path: auth-file-noauth
+      - name: xrootd-redi-supervisor
+        configMap: 
+          name: xrootd-redi-supervisor
+          items:
+          - key: supervisord.conf
+            path: supervisord.conf

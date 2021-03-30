@@ -1,0 +1,17 @@
+resources:
+  - deploy.yaml
+
+configMapGenerator:
+  - name: xrootd-server-conf
+    files:
+      - xrootd-third-party-copy.cfg
+      - auth-file-noauth 
+  - name: xrootd-server-supervisor
+    files:
+      - supervisord.conf
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+commonLabels:
+  app: xrootd-server-gc
