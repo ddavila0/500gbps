@@ -30,22 +30,23 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        - name: XRDHTTPPORT
-          value: "9051"
-        - name: SITENAME
-          value: xrootd-redi
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         image: aaarora/gc-500gbps:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 9051
+        - containerPort: 1094
+        - containerPort: 1213
         name: xrootd-redi-gc
         resources:
           limits:
             cpu: 2
-            memory: 4Gi
+            memory: 2Gi
           requests:
             cpu: 1
-            memory: 2Gi
+            memory: 1Gi
         volumeMounts:
         - mountPath: /mnt/ramdisk/
           name: cache-vol

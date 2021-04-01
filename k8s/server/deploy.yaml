@@ -6,6 +6,7 @@ metadata:
   name: xrootd-server-gc
   namespace: osg-gil
 spec:
+  replicas: 2
   selector:
     matchLabels:
       k8s-app: xrootd-server-gc
@@ -30,22 +31,22 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        - name: XRDHTTPPORT
-          value: "8080"
-        - name: SITENAME
-          value: xrootd-server
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         image: aaarora/gc-500gbps:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+        - containerPort: 1094
         name: xrootd-server-gc
         resources:
           limits:
             cpu: 2
-            memory: 4Gi
+            memory: 2Gi
           requests:
             cpu: 1
-            memory: 2Gi
+            memory: 1Gi
         volumeMounts:
         - mountPath: /mnt/ramdisk/
           name: cache-vol
