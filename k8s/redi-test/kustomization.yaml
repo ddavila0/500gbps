@@ -5,7 +5,7 @@ configMapGenerator:
   - name: xrootd-redi-conf
     files:
       - xrootd-third-party-copy.cfg
-      - auth-file-noauth 
+      - auth-file-noauth
   - name: xrootd-redi-supervisor
     files:
       - supervisord.conf
