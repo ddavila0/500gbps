@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: tpc-master
+  name: tpc-master
+  namespace: osg-gil
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: tpc-master
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        k8s-app: tpc-master
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/stashcache
+        operator: Exists
+      containers:
+      - image: aaarora/tpc-master:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        name: tpc-master
+        env:
+        - name: TIMEFORMAT
+          value: "%3R"
+        - name: OSG_FQDN
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        resources:
+          limits:
+            cpu: 4
+            memory: 8Gi
+          requests:
+            cpu: 2
+            memory: 5Gi
+        volumeMounts:
+        - mountPath: /home/doTransfer
+          name: tpc-script
+          subPath: doTransfer
+          readOnly: false 
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      nodeSelector:
+        kubernetes.io/hostname: stashcache.t2.ucsd.edu
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: cache-vol
+        emptyDir: {}
+      - name: tpc-script
+        configMap: 
+          name: tpc-script
+          items:
+          - key: doTransfer
+            path: doTransfer
+          defaultMode: 0777

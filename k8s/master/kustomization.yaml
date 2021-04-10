@@ -1,0 +1,13 @@
+resources:
+  - tpc-master.yaml
+
+configMapGenerator:
+  - name: tpc-script
+    files:
+      - doTransfer
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+commonLabels:
+  app: tpc-master

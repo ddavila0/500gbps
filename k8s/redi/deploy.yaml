@@ -59,6 +59,9 @@ spec:
         - mountPath: /etc/supervisord.d/10-xrootd.conf
           name: xrootd-redi-supervisor
           subPath: supervisord.conf
+        - mountPath: /etc/telegraf/telegraf.conf
+          name: telegraf-conf
+          subPath: telegraf.conf
       dnsPolicy: ClusterFirst
       nodeSelector:
         kubernetes.io/hostname: stashcache.t2.ucsd.edu
@@ -76,6 +79,13 @@ spec:
             path: xrootd-third-party-copy.cfg
           - key: auth-file-noauth
             path: auth-file-noauth
+      - name: telegraf-conf
+        secret:
+          secretName: telegraf-conf
+          items:
+          - key: telegraf.conf
+            path: telegraf.conf
+          defaultMode: 0644
       - name: xrootd-redi-supervisor
         configMap: 
           name: xrootd-redi-supervisor

@@ -1,12 +1,22 @@
 resources:
-  - deployment.yaml
+  - deploy.yaml
 
 configMapGenerator:
-  - name: xrootd-config-redi
+  - name: xrootd-redi-conf
     files:
-      - xrootd-redi.cfg
-      - cmsd-redi.cfg
+      - xrootd-third-party-copy.cfg
       - auth-file-noauth
+  - name: xrootd-redi-supervisor
+    files:
+      - supervisord.conf
+
+secretGenerator:
+- name: telegraf-conf
+  files:
+    - telegraf.conf
+
+generatorOptions:
+  disableNameSuffixHash: true
 
 commonLabels:
-  app: xrootd-redi
+  app: xrootd-redi-gc
