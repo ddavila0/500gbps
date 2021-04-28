@@ -5,6 +5,6 @@ RUN yum -y install gcc openssl-devel bzip2-devel libffi-devel && \
 
 RUN curl https://www.python.org/ftp/python/3.8.7/Python-3.8.7.tgz -o /tmp/Python.tgz && \
     tar xzf /tmp/Python.tgz && \
-    /bin/sh /tmp/Python-3.8.7/configure --enable-optimizations && \
     cd /tmp/Python-3.8.7 && \
+    ./configure --enable-optimizations && \
     make altinstall
