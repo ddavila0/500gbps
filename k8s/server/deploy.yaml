@@ -64,14 +64,16 @@ spec:
           subPath: telegraf.conf
       dnsPolicy: ClusterFirst
       nodeSelector:
-        kubernetes.io/hostname: stashcache.t2.ucsd.edu
+        topology.kubernetes.io/region: us-west
+        #kubernetes.io/hostname: stashcache.t2.ucsd.edu
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
       volumes:
       - name: cache-vol
-        persistentVolumeClaim:
-          claimName: xrootd-pvc 
+        #persistentVolumeClaim:
+        #  claimName: xrootd-pvc 
+        emptyDir: {}
       - name: xrootd-server-conf
         configMap: 
           name: xrootd-server-conf

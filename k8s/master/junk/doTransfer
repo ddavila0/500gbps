@@ -9,12 +9,12 @@ function HTTPTransfer {
     http://$3:1094/testDestFile$4
 }
 
-# Args: 1 Protocol, 2 NumStreams, 3 Source, 4 Dest, 5 NumTransfers
+# Args: 1 NumStreams, 2 Source, 3 Dest, 4 NumTransfers
 function doTransfer {
     PID=()
     for i in $(seq 1 $4)
     do
-        HTTPTransfer $1 $2 $3 $i & PID[$i]=$!
+        HTTPTransfer $1 $2 $3 $i 1> tmpTransfer$i.log & PID[$i]=$!
     done;
     for i in $(seq 1 $4)
     do

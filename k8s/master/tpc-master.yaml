@@ -40,15 +40,18 @@ spec:
               fieldPath: spec.nodeName
         resources:
           limits:
-            cpu: 4
-            memory: 8Gi
-          requests:
             cpu: 2
-            memory: 5Gi
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
         volumeMounts:
         - mountPath: /home/doTransfer
           name: tpc-script
           subPath: doTransfer
+        - mountPath: /home/calcRate.py
+          name: tpc-script
+          subPath: calcRate.py
           readOnly: false 
       dnsPolicy: ClusterFirst
       restartPolicy: Always
@@ -63,6 +66,8 @@ spec:
         configMap: 
           name: tpc-script
           items:
+          - key: calcRate.py
+            path: calcRate.py
           - key: doTransfer
             path: doTransfer
           defaultMode: 0777

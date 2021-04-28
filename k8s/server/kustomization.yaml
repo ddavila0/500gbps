@@ -1,6 +1,5 @@
 resources:
   - deploy.yaml
-  - pvc.yaml
 
 configMapGenerator:
   - name: xrootd-server-conf
