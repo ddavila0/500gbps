@@ -46,9 +46,6 @@ spec:
             cpu: 1
             memory: 1Gi
         volumeMounts:
-        - mountPath: /home/doTransfer
-          name: tpc-script
-          subPath: doTransfer
         - mountPath: /home/calcRate.py
           name: tpc-script
           subPath: calcRate.py
@@ -68,6 +65,4 @@ spec:
           items:
           - key: calcRate.py
             path: calcRate.py
-          - key: doTransfer
-            path: doTransfer
           defaultMode: 0777
