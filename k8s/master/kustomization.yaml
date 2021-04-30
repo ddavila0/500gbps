@@ -4,7 +4,7 @@ resources:
 configMapGenerator:
   - name: tpc-script
     files:
-      - calcRate.py
+      - tpc.py
 
 generatorOptions:
   disableNameSuffixHash: true

@@ -46,9 +46,9 @@ spec:
             cpu: 1
             memory: 1Gi
         volumeMounts:
-        - mountPath: /home/calcRate.py
+        - mountPath: /home/tpc.py
           name: tpc-script
-          subPath: calcRate.py
+          subPath: tpc.py
           readOnly: false 
       dnsPolicy: ClusterFirst
       restartPolicy: Always
@@ -63,6 +63,6 @@ spec:
         configMap: 
           name: tpc-script
           items:
-          - key: calcRate.py
-            path: calcRate.py
+          - key: tpc.py
+            path: tpc.py
           defaultMode: 0777
