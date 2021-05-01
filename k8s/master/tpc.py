@@ -47,8 +47,7 @@ class TransferTest:
                 throughput.append(tmpThroughput / (len(timeStamps)-1))
             except:
                 logging.error("Transfers are too fast")
-        t = sum(throughput) / 134217728
-        
+        t = sum(throughput) / 134217728 
         print(t,end='\r')
 
     @staticmethod
@@ -63,20 +62,21 @@ class TransferTest:
             result = stdout.decode().strip()
             output.append(result)
             queue.put_nowait(cmd)
-            
+             
             queue.task_done() 
     
     @staticmethod
     def makeTransferQueue(source, destination, numTransfers, numServers):
         queue = asyncio.Queue()
-        for server in range numServers:
-            for num in range(numTransfers):
-                cmd = ['curl', '-L', '-X', 'COPY']
-                cmd += ['-H', 'Overwrite: T']
-                cmd += ['-H', f'Source: http://{source}:1094/testSourceFile{10 * server + num + 1}']
-                cmd += [f'http://{destination}:1094/testDestFile{10 * server + num + 1}']
-                queue.put_nowait(cmd)
+        for num in range(numTransfers * numServers):
+            cmd = ['curl', '-L', '-X', 'COPY']
+            cmd += ['-H', 'Overwrite: T']
+            cmd += ['-H', f'Source: http://{source}:1094/testSourceFile{num}']
+            cmd += [f'http://{destination}:1094/testDestFile{num}']
+            queue.put_nowait(cmd)
         return queue
+
+    #TODO Add live transfer rate
 
     async def runTransfers(self):
         self.checkSocket(self.source, self.destination)
@@ -88,7 +88,7 @@ class TransferTest:
         logging.info("\nSTARTING TRANSFERS\n")
         
         tasks = []
-        for i in range(self.numTransfers + 2):
+        for i in range(self.numTransfers + 1):
             task = asyncio.create_task(self.worker(f'worker-{i}', queue, self.testOutput))
             tasks.append(task)
         

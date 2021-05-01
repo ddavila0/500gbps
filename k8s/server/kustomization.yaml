@@ -5,7 +5,8 @@ configMapGenerator:
   - name: xrootd-server-conf
     files:
       - xrootd-third-party-copy.cfg
-      - auth-file-noauth 
+      - auth-file-noauth
+      - makeFile
   - name: xrootd-server-supervisor
     files:
       - supervisord.conf

@@ -1,8 +1,9 @@
 #!/bin/bash
 
+numTransfer="10"
 count="0"
 for pod in $(kubectl -n osg-gil get pods -l k8s-app="xrootd-server-gc" --output=jsonpath={.items..metadata.name});
-    do
-        kubectl exec $pod -n osg-gil -- bash /home/makeFile $count 9 &
-        count=$[$count+1]
-    done
+do
+    kubectl exec $pod -n osg-gil -- bash /home/makeFile $count $numTransfer &
+    count=$[$count+$numTransfer]
+done

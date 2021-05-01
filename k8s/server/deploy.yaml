@@ -6,7 +6,7 @@ metadata:
   name: xrootd-server-gc
   namespace: osg-gil
 spec:
-  replicas: 2
+  replicas: 4
   selector:
     matchLabels:
       k8s-app: xrootd-server-gc
@@ -53,6 +53,9 @@ spec:
         - mountPath: /etc/xrootd/xrootd-third-party-copy.cfg
           name: xrootd-server-conf
           subPath: xrootd-third-party-copy.cfg
+        - mountPath: /home/makeFile
+          name: xrootd-server-conf
+          subPath: makeFile
         - mountPath: /etc/xrootd/auth-file-noauth
           name: xrootd-server-conf
           subPath: auth-file-noauth
@@ -65,14 +68,11 @@ spec:
       dnsPolicy: ClusterFirst
       nodeSelector:
         topology.kubernetes.io/region: us-west
-        #kubernetes.io/hostname: stashcache.t2.ucsd.edu
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
       volumes:
       - name: cache-vol
-        #persistentVolumeClaim:
-        #  claimName: xrootd-pvc 
         emptyDir: {}
       - name: xrootd-server-conf
         configMap: 
@@ -80,6 +80,8 @@ spec:
           items:
           - key: xrootd-third-party-copy.cfg
             path: xrootd-third-party-copy.cfg
+          - key: makeFile 
+            path: makeFile
           - key: auth-file-noauth
             path: auth-file-noauth
       - name: telegraf-conf
