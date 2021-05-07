@@ -4,6 +4,26 @@ import socket
 import asyncio
 import logging
   
+def calcTransferRate(output):
+  throughput = list()
+  for item in output:
+    timeStamps = list()
+    transferStripes = list()
+    tmpThroughput = 0
+    for line in item.split('\n'):
+      if "Timestamp" in line:
+        timeStamps.append(line.split()[1])
+      elif "Stripe Bytes Transferred" in line:
+        transferStripes.append(line.split()[3])
+    for i in range(len(timeStamps)-1):
+      tmpThroughput += (float(transferStripes[i+1]) - float(transferStripes[i])) / (float(timeStamps[i+1]) - float(timeStamps[i]))
+    try:
+      throughput.append(tmpThroughput / (len(timeStamps)-1))
+    except:
+      logging.error("Transfers are too fast")
+  t = sum(throughput) / 134217728 
+  return(t)
+  
 class TransferTest:
   def __init__(self, source, destination, numTransfers, numServers):
     self.source = source
@@ -30,27 +50,6 @@ class TransferTest:
       dest_sock.close()
   
   @staticmethod
-  def calcTransferRate(output):
-    throughput = list()
-    for item in output:
-      timeStamps = list()
-      transferStripes = list()
-      tmpThroughput = 0
-      for line in item.split('\n'):
-        if "Timestamp" in line:
-          timeStamps.append(line.split()[1])
-        elif "Stripe Bytes Transferred" in line:
-          transferStripes.append(line.split()[3])
-      for i in range(len(timeStamps)-1):
-        tmpThroughput += (float(transferStripes[i+1]) - float(transferStripes[i])) / (float(timeStamps[i+1]) - float(timeStamps[i]))
-      try:
-        throughput.append(tmpThroughput / (len(timeStamps)-1))
-      except:
-        logging.error("Transfers are too fast")
-    t = sum(throughput) / 134217728 
-    print(t,end='\r')
-
-  @staticmethod
   async def worker(name, queue, output):
     while True:
       cmd = await queue.get()
@@ -62,7 +61,9 @@ class TransferTest:
       result = stdout.decode().strip()
       output.append(result)
       queue.put_nowait(cmd)
-       
+      t = calcTransferRate(output[-10:-1])
+      print(t,end='\t')
+      logging.info(f'{name} finished transfer with throughput: {t}')
       queue.task_done() 
   
   @staticmethod
@@ -76,8 +77,6 @@ class TransferTest:
       queue.put_nowait(cmd)
     return queue
 
-  #TODO Add live transfer rate
-
   async def runTransfers(self):
     self.checkSocket(self.source, self.destination)
     
@@ -86,9 +85,9 @@ class TransferTest:
     logging.info("Queue built successfully")
 
     logging.info("\nSTARTING TRANSFERS\n")
-    
+
     tasks = []
-    for i in range(self.numTransfers + 1):
+    for i in range(self.numTransfers + 5):
       task = asyncio.create_task(self.worker(f'worker-{i}', queue, self.testOutput))
       tasks.append(task)
     
