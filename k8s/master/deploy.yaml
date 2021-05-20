@@ -40,11 +40,11 @@ spec:
               fieldPath: spec.nodeName
         resources:
           limits:
-            cpu: 2
-            memory: 2Gi
+            cpu: 10
+            memory: 8Gi
           requests:
-            cpu: 1
-            memory: 1Gi
+            cpu: 8
+            memory: 5Gi
         volumeMounts:
         - mountPath: /home/tpc.py
           name: tpc-script

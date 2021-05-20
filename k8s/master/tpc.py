@@ -1,9 +1,8 @@
-#!/usr/bin/python3
 import sys
 import socket
 import asyncio
 import logging
-  
+
 def calcTransferRate(output):
   throughput = list()
   for item in output:
@@ -21,9 +20,25 @@ def calcTransferRate(output):
       throughput.append(tmpThroughput / (len(timeStamps)-1))
     except:
       logging.error("Transfers are too fast")
-  t = sum(throughput) / 134217728 
-  return(t)
-  
+  t = sum(throughput) / 134217728
+  print(t,end='\r')
+
+def checkSocket(source, destination):
+  source_sock = socket.socket()
+  dest_sock = socket.socket()
+  try:
+    source_sock.connect((source, 1094))
+    dest_sock.connect((destination, 1094))
+    logging.info("Succesfully contacted socket 1094 on both sides")
+  except Exception as e:
+    source_sock.close()
+    dest_sock.close()
+    logging.error("Error while connecting to socket")
+    sys.exit(1)
+  finally:
+    source_sock.close()
+    dest_sock.close()
+
 class TransferTest:
   def __init__(self, source, destination, numTransfers, numServers):
     self.source = source
@@ -33,66 +48,47 @@ class TransferTest:
     self.testOutput = list()
   
   @staticmethod
-  def checkSocket(source, destination):
-    source_sock = socket.socket()
-    dest_sock = socket.socket()
-    try:
-      source_sock.connect((source, 1094))
-      dest_sock.connect((destination, 1094))
-      logging.info("Succesfully contacted socket 1094 on both sides")
-    except Exception as e:
-      source_sock.close()
-      dest_sock.close()
-      logging.error("Error while connecting to socket")
-      sys.exit(1)
-    finally:
-      source_sock.close()
-      dest_sock.close()
-  
-  @staticmethod
   async def worker(name, queue, output):
     while True:
       cmd = await queue.get()
-      
+
       process = await asyncio.create_subprocess_exec(
       *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-      
+
       stdout, stderr = await process.communicate()
       result = stdout.decode().strip()
       output.append(result)
       queue.put_nowait(cmd)
-      t = calcTransferRate(output[-10:-1])
-      print(t,end='\t')
-      logging.info(f'{name} finished transfer with throughput: {t}')
-      queue.task_done() 
-  
+
+      queue.task_done()
+
   @staticmethod
   def makeTransferQueue(source, destination, numTransfers, numServers):
     queue = asyncio.Queue()
     for num in range(numTransfers * numServers):
       cmd = ['curl', '-L', '-X', 'COPY']
       cmd += ['-H', 'Overwrite: T']
+      cmd += ['-H', 'X-Number-Of-Streams: 10']
       cmd += ['-H', f'Source: http://{source}:1094/testSourceFile{num}']
       cmd += [f'http://{destination}:1094/testDestFile{num}']
       queue.put_nowait(cmd)
     return queue
 
   async def runTransfers(self):
-    self.checkSocket(self.source, self.destination)
-    
+    checkSocket(self.source, self.destination)
+
     logging.info("Building queue with " + str(self.numTransfers) + " transfers")
     queue = self.makeTransferQueue(self.source, self.destination, self.numTransfers, self.numServers)
     logging.info("Queue built successfully")
-
     logging.info("\nSTARTING TRANSFERS\n")
 
     tasks = []
     for i in range(self.numTransfers + 5):
       task = asyncio.create_task(self.worker(f'worker-{i}', queue, self.testOutput))
       tasks.append(task)
-    
+
     await queue.join()
-    
+
     for task in tasks:
       task.cancel()
 

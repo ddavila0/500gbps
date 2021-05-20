@@ -21,10 +21,6 @@ spec:
       labels:
         k8s-app: xrootd-server-gc
     spec:
-      tolerations:
-      - effect: NoSchedule
-        key: nautilus.io/stashcache
-        operator: Exists
       containers:
       - env:
         - name: OSG_FQDN
@@ -42,11 +38,11 @@ spec:
         name: xrootd-server-gc
         resources:
           limits:
-            cpu: 2
-            memory: 2Gi
+            cpu: 25
+            memory: 25Gi
           requests:
-            cpu: 1
-            memory: 1Gi
+            cpu: 20
+            memory: 24Gi
         volumeMounts:
         - mountPath: /mnt/ramdisk/
           name: cache-vol
@@ -67,13 +63,16 @@ spec:
           subPath: telegraf.conf
       dnsPolicy: ClusterFirst
       nodeSelector:
-        topology.kubernetes.io/region: us-west
+        server: server-A
+        #kubernetes.io/hostname: aks-midnodes-18192960-vmss000000
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
       volumes:
       - name: cache-vol
-        emptyDir: {}
+        emptyDir:
+          medium: Memory
+          sizeLimit: 15Gi
       - name: xrootd-server-conf
         configMap: 
           name: xrootd-server-conf

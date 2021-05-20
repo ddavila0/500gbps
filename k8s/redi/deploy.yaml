@@ -20,10 +20,6 @@ spec:
       labels:
         k8s-app: xrootd-redi-gc
     spec:
-      tolerations:
-      - effect: NoSchedule
-        key: nautilus.io/stashcache
-        operator: Exists
       containers:
       - env:
         - name: OSG_FQDN
@@ -42,11 +38,11 @@ spec:
         name: xrootd-redi-gc
         resources:
           limits:
-            cpu: 2
-            memory: 2Gi
+            cpu: 6
+            memory: 5Gi
           requests:
-            cpu: 1
-            memory: 1Gi
+            cpu: 4
+            memory: 4Gi
         volumeMounts:
         - mountPath: /mnt/ramdisk/
           name: cache-vol
@@ -64,7 +60,7 @@ spec:
           subPath: telegraf.conf
       dnsPolicy: ClusterFirst
       nodeSelector:
-        kubernetes.io/hostname: stashcache.t2.ucsd.edu
+        kubernetes.io/hostname: aks-midnodes-18192960-vmss000001
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30

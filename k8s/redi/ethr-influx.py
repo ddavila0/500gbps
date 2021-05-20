@@ -12,13 +12,13 @@ def runCmd(cmd):
   return stdout
 
 if __name__ == '__main__':
-  conf = json.loads(open('influx.conf','r').read())
+  conf = json.loads(open('influxdb.conf','r').read())
   database = conf['database']
   username = conf['username']
   password = conf['password']
 
   url_string = f'http://graph.t2.ucsd.edu:8086/write?db={database}'
-  throughput = runCmd('/home/ethr -c localhost -d 1s | grep \'TCP\' | sed \'s/^.*\(.\{8\}\)/\\1/\' | xargs')
+  throughput = runCmd('/home/ethr -c localhost -d 1s | grep TCP | sed \'s/^.*\(.\{8\}\)/\\1/\' | xargs')
 
   source = os.getenv('POD_IP')
   destination = os.getenv('DEST_POD_IP')

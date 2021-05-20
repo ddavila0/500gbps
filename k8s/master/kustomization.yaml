@@ -1,5 +1,5 @@
 resources:
-  - tpc-master.yaml
+  - deploy.yaml
 
 configMapGenerator:
   - name: tpc-script
