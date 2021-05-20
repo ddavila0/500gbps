@@ -1,7 +1,7 @@
 FROM opensciencegrid/software-base:fresh
 
 RUN yum -y install vim && \
-    yum -y install osg-xrootd-standalone --enablerepo=osg-upcoming && \
+    yum -y install osg-xrootd-standalone && \
     yum -y install unzip && \
     yum -y install osg-test osg-ca-generator --enablerepo=devops-itb
 
