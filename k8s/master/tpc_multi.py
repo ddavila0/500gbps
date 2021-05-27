@@ -82,7 +82,7 @@ class TransferTest:
     logging.info("STARTING TRANSFERS...")
 
     tasks = []
-    for i in range(20):
+    for i in range(70):
       task = asyncio.create_task(self.worker(f'worker-{i}', queue, self.testOutput))
       tasks.append(task)
 

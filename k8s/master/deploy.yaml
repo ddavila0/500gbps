@@ -21,39 +21,43 @@ spec:
       labels:
         k8s-app: tpc-master
     spec:
-      tolerations:
-      - effect: NoSchedule
-        key: nautilus.io/stashcache
-        operator: Exists
       containers:
       - image: aaarora/tpc-master:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
         name: tpc-master
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/bin/sh", "-c", "osg-ca-generator --host -e 365"]
         env:
-        - name: TIMEFORMAT
-          value: "%3R"
         - name: OSG_FQDN
           valueFrom:
             fieldRef:
-              fieldPath: spec.nodeName
+              fieldPath: status.podIP
         resources:
           limits:
-            cpu: 10
+            cpu: 8
             memory: 8Gi
           requests:
-            cpu: 8
+            cpu: 4
             memory: 5Gi
         volumeMounts:
         - mountPath: /home/tpc.py
           name: tpc-script
           subPath: tpc.py
-          readOnly: false 
+        - mountPath: /home/tpc_multi.py
+          name: tpc-script
+          subPath: tpc_multi.py
+        - mountPath: /etc/pki/CA/private/OSG-Test-CA.key
+          name: ca
+          subPath: OSG-Test-CA.pem
+        - mountPath: /usr/lib/python2.7/site-packages/cagen.py
+          name: cagen
+          subPath: cagen.py
       dnsPolicy: ClusterFirst
       restartPolicy: Always
-      nodeSelector:
-        kubernetes.io/hostname: stashcache.t2.ucsd.edu
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
       volumes:
@@ -65,4 +69,16 @@ spec:
           items:
           - key: tpc.py
             path: tpc.py
+          - key: tpc_multi.py
+            path: tpc_multi.py
           defaultMode: 0777
+      - name: ca
+        secret:
+          secretName: https-self-certs
+          items:
+          - key: OSG-Test-CA.pem
+            path: OSG-Test-CA.pem
+          defaultMode: 0644
+      - name: cagen
+        configMap:
+          name: cert-script

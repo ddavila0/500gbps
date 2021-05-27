@@ -9,11 +9,17 @@ configMapGenerator:
   - name: xrootd-redi-supervisor
     files:
       - supervisord.conf
+  - name: cert-script
+    files:
+      - cagen.py
 
 secretGenerator:
 - name: telegraf-conf
   files:
     - telegraf.conf
+- name: https-self-certs
+  files:
+    - OSG-Test-CA.pem
 
 generatorOptions:
   disableNameSuffixHash: true

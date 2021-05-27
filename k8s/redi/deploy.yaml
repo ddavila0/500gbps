@@ -25,10 +25,6 @@ spec:
         - name: OSG_FQDN
           valueFrom:
             fieldRef:
-              fieldPath: spec.nodeName
-        - name: POD_IP
-          valueFrom:
-            fieldRef:
               fieldPath: status.podIP
         image: aaarora/gc-500gbps:latest
         imagePullPolicy: Always
@@ -58,15 +54,35 @@ spec:
         - mountPath: /etc/telegraf/telegraf.conf
           name: telegraf-conf
           subPath: telegraf.conf
+        - mountPath: /etc/pki/CA/private/OSG-Test-CA.key
+          name: ca
+          subPath: OSG-Test-CA.pem
+        - mountPath: /usr/lib/python2.7/site-packages/cagen.py
+          name: cagen
+          subPath: cagen.py
       dnsPolicy: ClusterFirst
-      nodeSelector:
-        kubernetes.io/hostname: aks-midnodes-18192960-vmss000001
+      #nodeSelector:
+        #server: server-A
+        #kubernetes.io/hostname: aks-midnodes-18192960-vmss000009
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
       volumes:
       - name: cache-vol
         emptyDir: {}
+      - name: ca
+        secret:
+          secretName: https-self-certs
+          items:
+          - key: OSG-Test-CA.pem
+            path: OSG-Test-CA.pem
+          defaultMode: 0644
+      - name: cagen
+        configMap:
+          name: cert-script
+          items:
+          - key: cagen.py
+            path: cagen.py
       - name: xrootd-redi-conf
         configMap: 
           name: xrootd-redi-conf

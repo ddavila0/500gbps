@@ -68,7 +68,7 @@ class TransferTest:
     for num in range(numTransfers * numServers):
       cmd = ['curl', '-L', '-X', 'COPY']
       cmd += ['-H', 'Overwrite: T']
-      cmd += ['-H', 'X-Number-Of-Streams: 10']
+      #cmd += ['-H', 'X-Number-Of-Streams: 10']
       cmd += ['-H', f'Source: http://{source}:1094/testSourceFile{num}']
       cmd += [f'http://{destination}:1094/testDestFile{num}']
       queue.put_nowait(cmd)

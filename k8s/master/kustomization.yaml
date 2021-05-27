@@ -5,6 +5,7 @@ configMapGenerator:
   - name: tpc-script
     files:
       - tpc.py
+      - tpc_multi.py
 
 generatorOptions:
   disableNameSuffixHash: true
