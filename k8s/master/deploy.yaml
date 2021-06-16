@@ -4,7 +4,6 @@ metadata:
   labels:
     k8s-app: tpc-master
   name: tpc-master
-  namespace: osg-gil
 spec:
   replicas: 1
   selector:
@@ -22,7 +21,7 @@ spec:
         k8s-app: tpc-master
     spec:
       containers:
-      - image: aaarora/tpc-master:latest
+      - image: aaarora/tpc-master-xrootd:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -38,11 +37,11 @@ spec:
               fieldPath: status.podIP
         resources:
           limits:
-            cpu: 8
-            memory: 8Gi
+            cpu: 15
+            memory: 10Gi
           requests:
-            cpu: 4
-            memory: 5Gi
+            cpu: 14
+            memory: 8Gi
         volumeMounts:
         - mountPath: /home/tpc.py
           name: tpc-script

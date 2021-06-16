@@ -1,6 +1,7 @@
 import sys
 import socket
 import asyncio
+import threading
 import logging
 
 def calcTransferRate(output):
@@ -40,11 +41,11 @@ def checkSocket(source, destination):
     dest_sock.close()
 
 class TransferTest:
-  def __init__(self, source, destination, numTransfers, numServers):
+  def __init__(self, source, destination, numTransferStart, numTransferEnd):
     self.source = source
     self.destination = destination
-    self.numTransfers = int(numTransfers)
-    self.numServers = int(numServers)
+    self.numTransferStart = int(numTransferStart)
+    self.numTransferEnd = int(numTransferEnd)
     self.testOutput = list()
   
   @staticmethod
@@ -62,28 +63,27 @@ class TransferTest:
 
       queue.task_done()
 
-  @staticmethod
-  def makeTransferQueue(source, destination, numTransfers, numServers):
+  def makeTransferQueue(self):
     queue = asyncio.Queue()
-    for num in range(numTransfers * numServers):
+    for num in range(self.numTransferStart, self.numTransferEnd):
       cmd = ['curl', '-L', '-X', 'COPY']
       cmd += ['-H', 'Overwrite: T']
-      #cmd += ['-H', 'X-Number-Of-Streams: 10']
-      cmd += ['-H', f'Source: http://{source}:1094/testSourceFile{num}']
-      cmd += [f'http://{destination}:1094/testDestFile{num}']
+      cmd += ['-H', f'Source: https://{self.source}:1094/testSourceFile{num}']
+      cmd += [f'https://{self.destination}:1094/testDestFile{num}']
+      cmd += ['--capath', '/etc/grid-security/certificates/']
       queue.put_nowait(cmd)
     return queue
 
   async def runTransfers(self):
     checkSocket(self.source, self.destination)
 
-    logging.info("Building queue with " + str(self.numTransfers) + " transfers")
-    queue = self.makeTransferQueue(self.source, self.destination, self.numTransfers, self.numServers)
+    logging.info("Building queue...")
+    queue = self.makeTransferQueue()
     logging.info("Queue built successfully")
-    logging.info("\nSTARTING TRANSFERS\n")
+    logging.info("STARTING TRANSFERS...")
 
     tasks = []
-    for i in range(self.numTransfers + 5):
+    for i in range((self.numTransferEnd - self.numTransferStart)):
       task = asyncio.create_task(self.worker(f'worker-{i}', queue, self.testOutput))
       tasks.append(task)
 
@@ -92,8 +92,22 @@ class TransferTest:
     for task in tasks:
       task.cancel()
 
-if __name__ == "__main__":
+  def startTransfers(self):
+    asyncio.run(self.runTransfers())
+
+def main():
   logging.basicConfig(filename='transfer.log', filemode='w', level=logging.INFO, format='%(asctime)s  %(levelname)s - %(message)s', datefmt='%Y%m%d %H:%M:%S')
+
   source, destination, numTransfers, numServers = sys.argv[1:5]
-  t = TransferTest(source, destination, numTransfers, numServers)
-  asyncio.run(t.runTransfers())
+  transferList = []
+  NUM_THREADS = int(numServers)
+  
+  totalTransfers = int(numTransfers) * int(numServers)
+  doTransfer = lambda i : TransferTest(source, destination, i, i + totalTransfers / NUM_THREADS).startTransfers()
+  
+  threads = [ threading.Thread(target = doTransfer, args=(i,)) for i in range(0, totalTransfers, totalTransfers // NUM_THREADS) ]
+  [ t.start() for t in threads ]
+  [ t.join() for t in threads ]
+
+if __name__ == "__main__":
+  main()

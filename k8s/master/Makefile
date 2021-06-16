@@ -1,4 +1,4 @@
 delete:
-	- kubectl delete -k ./ -n osg-gil
+	- kubectl delete -k ./
 create:
-	- kubectl create -k ./ -n osg-gil
+	- kubectl create -k ./
