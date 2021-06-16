@@ -4,42 +4,6 @@ import asyncio
 import threading
 import logging
 
-def calcTransferRate(output):
-  throughput = list()
-  for item in output:
-    timeStamps = list()
-    transferStripes = list()
-    tmpThroughput = 0
-    for line in item.split('\n'):
-      if "Timestamp" in line:
-        timeStamps.append(line.split()[1])
-      elif "Stripe Bytes Transferred" in line:
-        transferStripes.append(line.split()[3])
-    for i in range(len(timeStamps)-1):
-      tmpThroughput += (float(transferStripes[i+1]) - float(transferStripes[i])) / (float(timeStamps[i+1]) - float(timeStamps[i]))
-    try:
-      throughput.append(tmpThroughput / (len(timeStamps)-1))
-    except:
-      logging.error("Transfers are too fast")
-  t = sum(throughput) / 134217728
-  print(t,end='\r')
-
-def checkSocket(source, destination):
-  source_sock = socket.socket()
-  dest_sock = socket.socket()
-  try:
-    source_sock.connect((source, 1094))
-    dest_sock.connect((destination, 1094))
-    logging.info("Succesfully contacted socket 1094 on both sides")
-  except Exception as e:
-    source_sock.close()
-    dest_sock.close()
-    logging.error("Error while connecting to socket")
-    sys.exit(1)
-  finally:
-    source_sock.close()
-    dest_sock.close()
-
 class TransferTest:
   def __init__(self, source, destination, numTransferStart, numTransferEnd):
     self.source = source
@@ -47,7 +11,24 @@ class TransferTest:
     self.numTransferStart = int(numTransferStart)
     self.numTransferEnd = int(numTransferEnd)
     self.testOutput = list()
-  
+
+  @staticmethod
+  def checkSocket(source, destination):
+    source_sock = socket.socket()
+    dest_sock = socket.socket()
+    try:
+      source_sock.connect((source, 1094))
+      dest_sock.connect((destination, 1094))
+      logging.info("Succesfully contacted socket 1094 on both sides")
+    except Exception as e:
+      source_sock.close()
+      dest_sock.close()
+      logging.error("Error while connecting to socket")
+      sys.exit(1)
+    finally:
+      source_sock.close()
+      dest_sock.close()
+
   @staticmethod
   async def worker(name, queue, output):
     while True:
@@ -75,7 +56,7 @@ class TransferTest:
     return queue
 
   async def runTransfers(self):
-    checkSocket(self.source, self.destination)
+    self.checkSocket(self.source, self.destination)
 
     logging.info("Building queue...")
     queue = self.makeTransferQueue()
