@@ -1,7 +1,8 @@
 FROM opensciencegrid/software-base:fresh
 
 RUN yum -y install vim && \
-    yum -y install osg-ca-generator --enablerepo=devops-itb && \
+    curl -O https://kojihub0000.chtc.wisc.edu/kojifiles/packages/osg-ca-generator/1.4.0/1.osg35.el7/noarch/osg-ca-generator-1.4.0-1.osg35.el7.noarch.rpm && \
+    yum -y localinstall osg-ca-generator-1.4.0-1.osg35.el7.noarch.rpm && \
     yum -y install xrootd-client
 
 RUN yum install gcc openssl-devel bzip2-devel libffi-devel -y && \
