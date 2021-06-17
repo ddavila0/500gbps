@@ -4,7 +4,6 @@ metadata:
   labels:
     k8s-app: xrootd-redi-gc
   name: xrootd-redi-gc
-  namespace: osg-gil
 spec:
   selector:
     matchLabels:
@@ -34,11 +33,11 @@ spec:
         name: xrootd-redi-gc
         resources:
           limits:
-            cpu: 6
-            memory: 5Gi
+            cpu: 15
+            memory: 10Gi
           requests:
-            cpu: 4
-            memory: 4Gi
+            cpu: 14
+            memory: 8Gi
         volumeMounts:
         - mountPath: /mnt/ramdisk/
           name: cache-vol
@@ -61,9 +60,6 @@ spec:
           name: cagen
           subPath: cagen.py
       dnsPolicy: ClusterFirst
-      #nodeSelector:
-        #server: server-A
-        #kubernetes.io/hostname: aks-midnodes-18192960-vmss000009
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30

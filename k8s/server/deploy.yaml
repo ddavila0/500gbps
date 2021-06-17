@@ -4,9 +4,8 @@ metadata:
   labels:
     k8s-app: xrootd-server-gc
   name: xrootd-server-gc
-  namespace: osg-gil
 spec:
-  replicas: 8
+  replicas: 24
   selector:
     matchLabels:
       k8s-app: xrootd-server-gc
@@ -21,6 +20,16 @@ spec:
       labels:
         k8s-app: xrootd-server-gc
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: "kubernetes.io/hostname"
+                operator: In
+                values:
+                - "river-c027.ssl-hep.org"
+            topologyKey: "kubernetes.io/os"
       containers:
       - env:
         - name: OSG_FQDN
@@ -34,11 +43,11 @@ spec:
         name: xrootd-server-gc
         resources:
           limits:
-            cpu: 29
-            memory: 50Gi
+            cpu: 20
+            memory: 110Gi
           requests:
-            cpu: 28
-            memory: 40Gi
+            cpu: 19
+            memory: 108Gi
         volumeMounts:
         - mountPath: /mnt/ramdisk/
           name: cache-vol
@@ -64,9 +73,6 @@ spec:
           name: cagen
           subPath: cagen.py
       dnsPolicy: ClusterFirst
-      #nodeSelector:
-        #server: server-A
-        #kubernetes.io/hostname: aks-midnodes-18192960-vmss000000
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30
@@ -74,7 +80,7 @@ spec:
       - name: cache-vol
         emptyDir:
           medium: Memory
-          sizeLimit: 20Gi
+          sizeLimit: 100Gi
       - name: ca
         secret:
           secretName: https-self-certs
