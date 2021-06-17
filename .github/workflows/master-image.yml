@@ -10,9 +10,9 @@ jobs:
 
   build:
 
-    runs-on: centos-latest
+    runs-on: centos7-latest
 
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file ./docker/Master --tag master:$(date +%s)
+      run: docker build . --file docker/Master --tag master:$(date +%s)
