@@ -3,7 +3,7 @@ FROM opensciencegrid/software-base:fresh
 ADD influxdb.repo /etc/yum.repos.d/influxdb.repo
 
 RUN yum -y install vim && \
-    yum -y install osg-xrootd-standalone --enablerepo=osg-rolling && \
+    yum -y install osg-xrootd-standalone && \
     yum -y install unzip && \
     yum -y install osg-test osg-ca-generator --enablerepo=devops-itb && \
     yum -y install telegraf && \
