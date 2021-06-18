@@ -25,11 +25,12 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: "kubernetes.io/hostname"
+              - key: k8s-app
                 operator: In
                 values:
-                - "river-c027.ssl-hep.org"
-            topologyKey: "kubernetes.io/os"
+                - xrootd-server-gc
+                - xrootd-server-b-gc
+            topologyKey: "kubernetes.io/hostname"
       containers:
       - env:
         - name: OSG_FQDN

@@ -41,7 +41,7 @@ class TransferTest:
       result = stdout.decode().strip()
       output.append(result)
       queue.put_nowait(cmd)
-
+      print(result)
       queue.task_done()
 
   def makeTransferQueue(self):

@@ -46,9 +46,6 @@ spec:
         - mountPath: /home/tpc.py
           name: tpc-script
           subPath: tpc.py
-        - mountPath: /home/tpc_multi.py
-          name: tpc-script
-          subPath: tpc_multi.py
         - mountPath: /etc/pki/CA/private/OSG-Test-CA.key
           name: ca
           subPath: OSG-Test-CA.pem
@@ -68,8 +65,6 @@ spec:
           items:
           - key: tpc.py
             path: tpc.py
-          - key: tpc_multi.py
-            path: tpc_multi.py
           defaultMode: 0777
       - name: ca
         secret:

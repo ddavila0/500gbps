@@ -1,4 +1,4 @@
 delete:
 	- kubectl delete -k ./
 create:
-	- kubectl create -k ./
+	- kubectl apply -k ./
