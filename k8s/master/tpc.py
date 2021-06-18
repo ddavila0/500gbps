@@ -10,7 +10,6 @@ class TransferTest:
     self.destination = destination
     self.numTransferStart = int(numTransferStart)
     self.numTransferEnd = int(numTransferEnd)
-    self.testOutput = list()
 
   @staticmethod
   def checkSocket(source, destination):
@@ -30,7 +29,7 @@ class TransferTest:
       dest_sock.close()
 
   @staticmethod
-  async def worker(name, queue, output):
+  async def worker(name, queue):
     while True:
       cmd = await queue.get()
 
@@ -39,7 +38,6 @@ class TransferTest:
 
       stdout, stderr = await process.communicate()
       result = stdout.decode().strip()
-      output.append(result)
       queue.put_nowait(cmd)
       print(result)
       queue.task_done()
@@ -64,8 +62,8 @@ class TransferTest:
     logging.info("STARTING TRANSFERS...")
 
     tasks = []
-    for i in range((self.numTransferEnd - self.numTransferStart)):
-      task = asyncio.create_task(self.worker(f'worker-{i}', queue, self.testOutput))
+    for i in range(2 * (self.numTransferEnd - self.numTransferStart)):
+      task = asyncio.create_task(self.worker(f'worker-{i}', queue))
       tasks.append(task)
 
     await queue.join()
@@ -81,10 +79,10 @@ def main():
 
   source, destination, numTransfers, numServers = sys.argv[1:5]
   transferList = []
-  NUM_THREADS = int(numServers)
+  NUM_THREADS = int(numServers) // 2
   
   totalTransfers = int(numTransfers) * int(numServers)
-  doTransfer = lambda i : TransferTest(source, destination, i, i + totalTransfers / NUM_THREADS).startTransfers()
+  doTransfer = lambda i : TransferTest(source, destination, i, i + totalTransfers // NUM_THREADS).startTransfers()
   
   threads = [ threading.Thread(target = doTransfer, args=(i,)) for i in range(0, totalTransfers, totalTransfers // NUM_THREADS) ]
   [ t.start() for t in threads ]

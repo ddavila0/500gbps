@@ -1,6 +1,6 @@
 #!/bin/bash
 
-numTransfer="20"
+numTransfer="80"
 count="0"
 for pod in $(kubectl get pods -l k8s-app="xrootd-server-gc" --output=jsonpath={.items..metadata.name});
 do

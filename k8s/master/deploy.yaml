@@ -37,10 +37,10 @@ spec:
               fieldPath: status.podIP
         resources:
           limits:
-            cpu: 15
+            cpu: 20
             memory: 10Gi
           requests:
-            cpu: 14
+            cpu: 19
             memory: 8Gi
         volumeMounts:
         - mountPath: /home/tpc.py
