@@ -5,7 +5,7 @@ metadata:
     k8s-app: xrootd-server-gc
   name: xrootd-server-gc
 spec:
-  replicas: 24
+  replicas: 1
   selector:
     matchLabels:
       k8s-app: xrootd-server-gc
@@ -20,6 +20,19 @@ spec:
       labels:
         k8s-app: xrootd-server-gc
     spec:
+      tolerations:
+      - key: "nautilus.io/noceph" 
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nautilus.io/ceph" 
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nautilus.io/testing" 
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nautilus.io/stashcache"
+        operator: "Exists"
+        effect: "NoSchedule"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -30,25 +43,33 @@ spec:
                 values:
                 - xrootd-server-gc
                 - xrootd-server-b-gc
+                - xrootd-redi-gc
+                - xrootd-redi-b-gc
             topologyKey: "kubernetes.io/hostname"
+      #hostNetwork: True
       containers:
       - env:
         - name: OSG_FQDN
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
+              #fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         image: aaarora/gc-500gbps:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 1094
+        - containerPort: 2024
         name: xrootd-server-gc
         resources:
           limits:
-            cpu: 20
-            memory: 110Gi
+            cpu: 8
+            memory: 20Gi
           requests:
-            cpu: 19
-            memory: 108Gi
+            cpu: 7
+            memory: 19Gi
         volumeMounts:
         - mountPath: /mnt/ramdisk/
           name: cache-vol
@@ -73,6 +94,11 @@ spec:
         - mountPath: /usr/lib/python2.7/site-packages/cagen.py
           name: cagen
           subPath: cagen.py
+      nodeSelector:
+        topology.kubernetes.io/region: us-west
+        #nautilus.io/ue4: suncave
+        #nautilus.io/region: ucsd
+        #nautilus.io/network: "100000"
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -81,7 +107,7 @@ spec:
       - name: cache-vol
         emptyDir:
           medium: Memory
-          sizeLimit: 100Gi
+          sizeLimit: 15Gi
       - name: ca
         secret:
           secretName: https-self-certs

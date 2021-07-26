@@ -19,25 +19,41 @@ spec:
       labels:
         k8s-app: xrootd-redi-gc
     spec:
+      tolerations:
+      - key: "nautilus.io/noceph" 
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nautilus.io/ceph" 
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nautilus.io/testing" 
+        operator: "Exists"
+        effect: "NoSchedule"
+      #hostNetwork: True
       containers:
       - env:
         - name: OSG_FQDN
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
+              #fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         image: aaarora/gc-500gbps:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 1094
-        - containerPort: 1213
+        - containerPort: 2024
+        - containerPort: 2213
         name: xrootd-redi-gc
         resources:
           limits:
-            cpu: 15
-            memory: 10Gi
-          requests:
-            cpu: 14
+            cpu: 8
             memory: 8Gi
+          requests:
+            cpu: 7
+            memory: 6Gi
         volumeMounts:
         - mountPath: /mnt/ramdisk/
           name: cache-vol
@@ -59,7 +75,11 @@ spec:
         - mountPath: /usr/lib/python2.7/site-packages/cagen.py
           name: cagen
           subPath: cagen.py
-      dnsPolicy: ClusterFirst
+      nodeSelector:
+        topology.kubernetes.io/region: us-west
+        #nautilus.io/ue4: suncave
+        #nautilus.io/network: "100000"
+      dnsPolicy: ClusterFirstWithHostNet
       restartPolicy: Always
       schedulerName: default-scheduler
       terminationGracePeriodSeconds: 30

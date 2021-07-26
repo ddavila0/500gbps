@@ -20,6 +20,19 @@ spec:
       labels:
         k8s-app: tpc-master
     spec:
+      tolerations:
+      - key: "nautilus.io/noceph" 
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nautilus.io/ceph" 
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nautilus.io/testing" 
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "nautilus.io/stashcache" 
+        operator: "Exists"
+        effect: "NoSchedule"
       containers:
       - image: aaarora/tpc-master-xrootd:latest
         imagePullPolicy: Always
@@ -55,6 +68,8 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
+      nodeSelector:
+       kubernetes.io/hostname: stashcache.t2.ucsd.edu
       terminationGracePeriodSeconds: 30
       volumes:
       - name: cache-vol

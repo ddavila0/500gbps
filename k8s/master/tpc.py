@@ -16,9 +16,9 @@ class TransferTest:
     source_sock = socket.socket()
     dest_sock = socket.socket()
     try:
-      source_sock.connect((source, 1094))
-      dest_sock.connect((destination, 1094))
-      logging.info("Succesfully contacted socket 1094 on both sides")
+      source_sock.connect((source, 1097))
+      dest_sock.connect((destination, 1097))
+      logging.info("Succesfully contacted socket 1097 on both sides")
     except Exception as e:
       source_sock.close()
       dest_sock.close()
@@ -38,8 +38,9 @@ class TransferTest:
 
       stdout, stderr = await process.communicate()
       result = stdout.decode().strip()
+      error = stderr.decode().strip()
       queue.put_nowait(cmd)
-      print(result)
+      print(result or error)
       queue.task_done()
 
   def makeTransferQueue(self):
@@ -47,8 +48,8 @@ class TransferTest:
     for num in range(self.numTransferStart, self.numTransferEnd):
       cmd = ['curl', '-L', '-X', 'COPY']
       cmd += ['-H', 'Overwrite: T']
-      cmd += ['-H', f'Source: https://{self.source}:1094/testSourceFile{num}']
-      cmd += [f'https://{self.destination}:1094/testDestFile{num}']
+      cmd += ['-H', f'Source: https://{self.source}:1097/testSourceFile{num}']
+      cmd += [f'https://{self.destination}:1097/testDestFile{num}']
       cmd += ['--capath', '/etc/grid-security/certificates/']
       queue.put_nowait(cmd)
     return queue

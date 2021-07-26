@@ -1,9 +1,11 @@
 #!/bin/bash
 
-numTransfer="80"
+numTransfer="1"
 count="0"
+#num blocks : each block is 256Mi
+block_count="4"
 for pod in $(kubectl get pods -l k8s-app="xrootd-server-gc" --output=jsonpath={.items..metadata.name});
 do
-    kubectl exec $pod -- bash /home/makeFile $count $numTransfer &
+    kubectl exec $pod -- bash /home/makeFile $count $numTransfer $block_count &
     count=$[$count+$numTransfer]
 done

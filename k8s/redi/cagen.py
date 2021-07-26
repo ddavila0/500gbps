@@ -365,6 +365,7 @@ def _get_hostname():
     get the hostname. Stolen from osg-test
     """
     try:
+        #return socket.getfqdn()
         return os.getenv("OSG_FQDN") or socket.gethostbyaddr(socket.gethostname())[0]
     except socket.error:
         raise RuntimeError("Failed to retrieve this host's FQDN")
