@@ -46,14 +46,13 @@ spec:
                 - xrootd-redi-gc
                 - xrootd-redi-b-gc
             topologyKey: "kubernetes.io/hostname"
-      #hostNetwork: True
+      hostNetwork: True
       containers:
       - env:
         - name: OSG_FQDN
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-              #fieldPath: spec.nodeName
         - name: POD_NAME
           valueFrom:
             fieldRef:
@@ -61,15 +60,15 @@ spec:
         image: aaarora/gc-500gbps:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 2024
+        - containerPort: 2094
         name: xrootd-server-gc
         resources:
           limits:
             cpu: 8
-            memory: 20Gi
+            memory: 60Gi
           requests:
             cpu: 7
-            memory: 19Gi
+            memory: 50Gi
         volumeMounts:
         - mountPath: /mnt/ramdisk/
           name: cache-vol
@@ -95,10 +94,7 @@ spec:
           name: cagen
           subPath: cagen.py
       nodeSelector:
-        topology.kubernetes.io/region: us-west
-        #nautilus.io/ue4: suncave
-        #nautilus.io/region: ucsd
-        #nautilus.io/network: "100000"
+        kubernetes.io/hostname: stashcache.t2.ucsd.edu
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -107,7 +103,7 @@ spec:
       - name: cache-vol
         emptyDir:
           medium: Memory
-          sizeLimit: 15Gi
+          sizeLimit: 50Gi
       - name: ca
         secret:
           secretName: https-self-certs

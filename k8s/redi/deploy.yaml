@@ -44,7 +44,7 @@ spec:
         image: aaarora/gc-500gbps:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 2024
+        - containerPort: 2094
         - containerPort: 2213
         name: xrootd-redi-gc
         resources:

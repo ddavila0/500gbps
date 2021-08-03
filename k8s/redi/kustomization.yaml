@@ -1,5 +1,5 @@
-resources:
-  - deploy.yaml
+#resources:
+#  - deploy.yaml
 
 configMapGenerator:
   - name: xrootd-redi-conf
